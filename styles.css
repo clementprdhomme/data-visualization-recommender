@@ -238,6 +238,7 @@ h1 {
   height: 30vh;
   flex-basis: 30%;
   width: 100%;
+  overflow: hidden;
 }
 
 #dataset > .title {
