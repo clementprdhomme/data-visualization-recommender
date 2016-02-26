@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Visualization recommender</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="styles.css"/>
+  </head>
+  <body>
+    <aside id="sidebar">
+      <h1><a href="#">Visualization recommender</a></h1>
+      <p>This demo aims to show how it's possible to infer which types of visualizations can be rendered from a JSON dataset, and with which data field(s).</p>
+      <p>It's based on the work of the <a href="http://idl.cs.washington.edu" title="Interactive Data Lab's website">Interactive Data Lab</a> and especially on their tools <a href="https://github.com/vega/datalib" title="Datalib's GitHub repository">Datalib</a>, <a href="https://github.com/vega/voyager" title="Voyager's GitHub repository">Voyager</a>, <a href="https://github.com/vega/vega-lite-ui" title="vega-lite-ui's GitHub repository">vega-lite-ui</a>, as well as the research document <a href="https://idl.cs.washington.edu/files/2015-Voyager-InfoVis.pdf" title="Link to the PDF document">Voyager: Exploratory Analysis via Faceted Browsing of Visualization Recommendations</a> published in 2015.</p>
+      <footnote><p>Developed by<br/><a href="http://clementprodhomme.fr">Clément Prod'homme</a></p><p><a href="#">Source</a></p></footnote>
+    </aside>
+
+    <div id="app">
+
+      <div id="toolbar">
+        <input v-model="url"
+               @keyup.enter="computeRecommendations()"
+               type="text"
+               class="input"
+               placeholder="Enter the URL of a JSON dataset here"
+        />
+        <button class="button" @click="computeRecommendations()">
+          Let's go
+        </button>
+      </div>
+
+      <div class="content" :class="chartInferringDone ? '-contracted' : ''">
+
+        <!-- The error message -->
+        <div class="error" v-if="error" transition="expand">
+          <b>Error:</b> Unable to fetch or parse the dataset. Make sure you load a JSON file and that it's just an array. See the console.
+          <div class="button" @click="error = ''">X</div>
+        </div>
+
+        <!-- The interface show when everything's ready to let the user choose a
+             chart -->
+        <div v-if="chartInferringDone">
+
+          <!-- Module with the available types of chart -->
+          <div id="chart">
+            <h1 class="title">Type of charts</h1>
+            <div class="tags">
+              <div class="tag"
+                   v-for="chart in charts"
+                   :class="{ '-selected': chart === selectedChart, '-disabled': !chart.enabled }"
+                   @click="selectedChart=chart"
+              >
+                {{chart.name}}
+              </div>
+            </div>
+          </div>
+
+          <!-- Module with the available fields to choose when the chart has
+               been chosen -->
+          <div v-if="selectedChart" id="fields">
+
+            <h1 class="title">Fields</h1>
+
+            <div class="category"
+                 v-show="firstColumnField && secondColumnAvailableFields && secondColumnAvailableFields.length"
+                 transition="expand"
+            >
+              First field:
+            </div>
+            <div class="tags">
+              <div class="tag"
+                   v-for="field in fields | orderBy 'name'"
+                   :class="{ '-selected': firstColumnField === field, '-disabled': !field.enabled }"
+                   @click="firstColumnField = field.enabled ? field : firstColumnField"
+              >
+                {{field.name}}
+              </div>
+            </div>
+
+
+            <div v-show="firstColumnField && secondColumnAvailableFields && secondColumnAvailableFields.length">
+              <div class="category"
+                   transition="expand"
+              >
+                Second field:
+              </div>
+              <div class="tags">
+                <div class="tag"
+                     v-for="field in fields | orderBy 'name'"
+                     :class="{ '-selected': secondColumnField === field, '-disabled': !field.enabled || !~secondColumnAvailableFields.indexOf(field) }"
+                     @click="secondColumnField = field.enabled && ~secondColumnAvailableFields.indexOf(field) ? field : secondColumnField"
+                >
+                  {{field.name}}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- The interface when no dataset has been analized yet -->
+        <div v-else>
+          <h1 id="splashscreen">Start by entering an URL above</h1>
+        </div>
+
+      </div>
+
+      <div id="dataset" v-if="chartInferringDone">
+        <div class="title">Dataset</div>
+        <div class="content">
+          <table class="table">
+            <thead>
+              <tr>
+                <th v-for="field in fields"
+                    :class="[ field.type === 'number' || field.type === 'integer' ? '_alignright' : '_alignleft', firstColumnField === field || secondColumnField === field ? '-active' : '' ]"
+                >
+                  {{field.name}}
+                  <span>({{field.type}})</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in data">
+                <td v-for="field in fields"
+                    :class="[ field.type === 'number' || field.type === 'integer' ? '_monospace' : '', field.type === 'number' || field.type === 'integer' ? '_alignright' : '', firstColumnField === field || secondColumnField === field ? '-active' : '' ]"
+                >
+                  {{row[field.name]}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </app>
+
+    <script type="text/javascript" src="https://raw.githubusercontent.com/vega/datalib/44e582cc3a6dc205cf2afff788a3708ed24453e8/datalib.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/vue/latest/vue.js"></script>
+
+    <script type="text/javascript" src="stat_types.js"></script>
+    <script type="text/javascript" src="store.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+
+  </body>
+</html>
