@@ -1,0 +1,23 @@
+{
+  "name": "data-visualization-recommender",
+  "homepage": "https://github.com/clementprdhomme/data-visualization-recommender",
+  "authors": [
+    "Clément Prod'homme <contact@clementprodhomme.fr>"
+  ],
+  "description": "Web app to infer which types of visualizations can be rendered from a JSON dataset, and with which data field(s)",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "vue": "^1.0.16",
+    "datalib": "^1.6.1"
+  }
+}
