@@ -47,7 +47,7 @@
               <div class="tag"
                    v-for="chart in charts"
                    :class="{ '-selected': chart === selectedChart, '-disabled': !chart.enabled }"
-                   @click="selectedChart=chart"
+                   @click="selectedChart = chart.enabled ? chart : selectedChart"
               >
                 {{chart.name}}
               </div>
